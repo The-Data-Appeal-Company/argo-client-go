@@ -8,7 +8,13 @@ import (
 	"time"
 )
 
-type Argo struct {
+type Argo interface {
+	CreateWorkflow(ctx context.Context, req CreateRequest) (*v1alpha1.Workflow, error)
+	GetWorkflow(ctx context.Context, req GetRequest) (*v1alpha1.Workflow, error)
+	WaitWorkflow(ctx context.Context, req GetRequest) (*v1alpha1.Workflow, error)
+}
+
+type ArgoClient struct {
 	client      workflow.WorkflowServiceClient
 	pollingTime time.Duration
 }
@@ -27,14 +33,14 @@ type GetRequest struct {
 	Name      string `json:"name" yaml:"name"`
 }
 
-func New(client workflow.WorkflowServiceClient, opts Opts) *Argo {
-	return &Argo{
+func New(client workflow.WorkflowServiceClient, opts Opts) *ArgoClient {
+	return &ArgoClient{
 		client:      client,
 		pollingTime: opts.pollingTime,
 	}
 }
 
-func NewFromArgoServer(url string, opts Opts) (*Argo, error) {
+func NewFromArgoServer(url string, opts Opts) (*ArgoClient, error) {
 	_, client, err := apiclient.NewClientFromOpts(apiclient.Opts{
 		ArgoServerOpts: apiclient.ArgoServerOpts{
 			URL: url,
@@ -48,25 +54,25 @@ func NewFromArgoServer(url string, opts Opts) (*Argo, error) {
 	return New(client.NewWorkflowServiceClient(), opts), nil
 }
 
-func (a *Argo) Client() workflow.WorkflowServiceClient {
+func (a *ArgoClient) Client() workflow.WorkflowServiceClient {
 	return a.client
 }
 
-func (a *Argo) CreateWorkflow(ctx context.Context, req CreateRequest) (*v1alpha1.Workflow, error) {
+func (a *ArgoClient) CreateWorkflow(ctx context.Context, req CreateRequest) (*v1alpha1.Workflow, error) {
 	return a.client.CreateWorkflow(ctx, &workflow.WorkflowCreateRequest{
 		Namespace: req.Namespace,
 		Workflow:  req.Workflow,
 	})
 }
 
-func (a *Argo) GetWorkflow(ctx context.Context, req GetRequest) (*v1alpha1.Workflow, error) {
+func (a *ArgoClient) GetWorkflow(ctx context.Context, req GetRequest) (*v1alpha1.Workflow, error) {
 	return a.client.GetWorkflow(ctx, &workflow.WorkflowGetRequest{
 		Name:      req.Name,
 		Namespace: req.Namespace,
 	})
 }
 
-func (a *Argo) WaitWorkflow(ctx context.Context, req GetRequest) (*v1alpha1.Workflow, error) {
+func (a *ArgoClient) WaitWorkflow(ctx context.Context, req GetRequest) (*v1alpha1.Workflow, error) {
 	tk := time.NewTimer(a.pollingTime)
 	for {
 		select {
