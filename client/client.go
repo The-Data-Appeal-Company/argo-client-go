@@ -20,7 +20,7 @@ type ArgoClient struct {
 }
 
 type Opts struct {
-	pollingTime time.Duration
+	PollingTime time.Duration
 }
 
 type CreateRequest struct {
@@ -36,7 +36,7 @@ type GetRequest struct {
 func New(client workflow.WorkflowServiceClient, opts Opts) *ArgoClient {
 	return &ArgoClient{
 		client:      client,
-		pollingTime: opts.pollingTime,
+		pollingTime: opts.PollingTime,
 	}
 }
 

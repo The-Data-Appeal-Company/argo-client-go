@@ -26,7 +26,7 @@ func TestArgo_CreateWorkflow(t *testing.T) {
 	client := &mocks.WorkflowServiceClient{}
 	client.On("CreateWorkflow", mock.Anything, mock.Anything).Return(&expectedWf, nil)
 
-	argo := New(client, Opts{pollingTime: 100 * time.Millisecond})
+	argo := New(client, Opts{PollingTime: 100 * time.Millisecond})
 
 	wf, err := argo.CreateWorkflow(context.TODO(), CreateRequest{
 		Namespace: "default",
@@ -57,7 +57,7 @@ func TestArgo_GetWorkflow(t *testing.T) {
 
 	client.On("GetWorkflow", mock.Anything, mock.Anything).Return(&expectedWf, nil)
 
-	argo := New(client, Opts{pollingTime: 100 * time.Millisecond})
+	argo := New(client, Opts{PollingTime: 100 * time.Millisecond})
 
 	wf, err := argo.GetWorkflow(context.TODO(), GetRequest{
 		Namespace: "default",
@@ -87,7 +87,7 @@ func TestArgo_WaitWorkflow(t *testing.T) {
 	client.On("GetWorkflow", mock.Anything, mock.Anything).Return(&expectedWf, nil)
 
 	argo := New(client, Opts{
-		pollingTime: 100 * time.Millisecond,
+		PollingTime: 100 * time.Millisecond,
 	})
 
 	wf, err := argo.WaitWorkflow(context.TODO(), GetRequest{
@@ -119,7 +119,7 @@ func TestArgo_WaitWorkflow_Pending(t *testing.T) {
 	client.On("GetWorkflow", mock.Anything, mock.Anything).Return(&expectedWf, nil)
 
 	argo := New(client, Opts{
-		pollingTime: 100 * time.Millisecond,
+		PollingTime: 100 * time.Millisecond,
 	})
 
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
@@ -165,7 +165,7 @@ func TestArgo_WaitWorkflow_SwitchPendingToRunning(t *testing.T) {
 		Return(&completedWf, nil)
 
 	argo := New(client, Opts{
-		pollingTime: 100 * time.Millisecond,
+		PollingTime: 100 * time.Millisecond,
 	})
 
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
