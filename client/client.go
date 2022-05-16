@@ -42,6 +42,9 @@ func New(client workflow.WorkflowServiceClient, opts Opts) *ArgoClient {
 
 func NewFromArgoServer(url string, opts Opts) (*ArgoClient, error) {
 	_, client, err := apiclient.NewClientFromOpts(apiclient.Opts{
+		AuthSupplier: func() string {
+			return ""
+		},
 		ArgoServerOpts: apiclient.ArgoServerOpts{
 			URL: url,
 		},
@@ -73,7 +76,7 @@ func (a *ArgoClient) GetWorkflow(ctx context.Context, req GetRequest) (*v1alpha1
 }
 
 func (a *ArgoClient) WaitWorkflow(ctx context.Context, req GetRequest) (*v1alpha1.Workflow, error) {
-	tk := time.NewTimer(a.pollingTime)
+	tk := time.NewTicker(a.pollingTime)
 	for {
 		select {
 		case <-ctx.Done():
